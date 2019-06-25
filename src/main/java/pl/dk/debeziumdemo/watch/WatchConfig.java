@@ -2,14 +2,13 @@ package pl.dk.debeziumdemo.watch;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import pl.dk.debeziumdemo.email.EmailSender;
 
 @Configuration
 class WatchConfig {
 
     @Bean
-    OrdersWatch ordersWatch(OrdersDbInfoProvider ordersDbInfoProvider, EmailSender emailSender) {
-        return new OrdersWatch(debeziumConfiguration(ordersDbInfoProvider), emailSender);
+    OrdersWatch ordersWatch(OrdersDbInfoProvider ordersDbInfoProvider) {
+        return new OrdersWatch(debeziumConfiguration(ordersDbInfoProvider));
     }
 
     io.debezium.config.Configuration debeziumConfiguration(OrdersDbInfoProvider ordersDbInfoProvider) {
@@ -24,7 +23,7 @@ class WatchConfig {
             .with("database.user", "postgres")
             .with("database.password", "postgres")
             .with("database.dbname", "demo")
-            .with("table.whitelist", "public.order_events")
+            .with("table.whitelist", "public.orders")
            // .with("snapshot.mode", "never")
             .build();
     }

@@ -6,16 +6,17 @@ import io.debezium.embedded.EmbeddedEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
-import pl.dk.debeziumdemo.email.EmailSender;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static io.debezium.data.Envelope.FieldName.AFTER;
 import static io.debezium.data.Envelope.FieldName.OPERATION;
+import static java.util.List.copyOf;
 
 @Slf4j
 class OrdersWatch {
@@ -26,11 +27,10 @@ class OrdersWatch {
 
     private EmbeddedEngine engine;
 
-    private final EmailSender emailSender;
+    private final List<Struct> changesCaptured = new ArrayList<>();
 
-    OrdersWatch(Configuration debeziumConfiguration, EmailSender emailSender) {
+    OrdersWatch(Configuration debeziumConfiguration) {
         this.debeziumConfiguration = debeziumConfiguration;
-        this.emailSender = emailSender;
     }
 
     void start() {
@@ -53,7 +53,6 @@ class OrdersWatch {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     private void handleEvent(SourceRecord sourceRecord) {
         Struct sourceRecordValue = (Struct) sourceRecord.value();
         Operation operation = Operation.forCode((String) sourceRecordValue.get(OPERATION));
@@ -62,7 +61,10 @@ class OrdersWatch {
             return;
         }
         Struct after = (Struct) sourceRecordValue.get(AFTER);
-        UUID orderId = UUID.fromString(after.getString("order_id"));
-        emailSender.sendEmail(orderId);
+        changesCaptured.add(after);
+    }
+
+    List<Struct> getChangesCaptured() {
+        return copyOf(changesCaptured);
     }
 }
