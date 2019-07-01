@@ -27,7 +27,7 @@ class DebeziumCDCDemo extends Specification {
 
     static final UUID ORDER_ID = randomUUID()
 
-    def "should persist order and send email"() {
+    def "should capture changes"() {
         when:
         jdbcTemplate.update('INSERT INTO orders(id, description) VALUES (:id, :description)',
                 [
