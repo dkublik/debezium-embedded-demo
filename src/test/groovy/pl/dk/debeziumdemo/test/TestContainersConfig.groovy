@@ -12,7 +12,7 @@ import javax.sql.DataSource
 @Configuration
 class TestContainersConfig {
 
-    private static final String POSTGRES_DOCKER_IAMGE = 'debezium/postgres'
+    private static final String POSTGRES_DOCKER_IAMGE = 'debezium/postgres:10.0'
 
     private static final int POSTGRES_EXPOSED_PORT = 5432
 
